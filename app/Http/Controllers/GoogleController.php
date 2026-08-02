@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use App\Enums\RoleEnum;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
@@ -19,24 +21,27 @@ class GoogleController extends Controller
     public function callback()
     {
         $googleUser = Socialite::driver('google')->user();
-        $user = User::updateOrCreate(
-            [
-                'email' => $googleUser->email
-            ],
-            [
-                'name' => $googleUser->name,
-                'google_id' => $googleUser->id,
-                'avatar' => $googleUser->avatar,
-            ]
-        );
+        DB::transaction(function () use ($googleUser, &$user) {
+            $user = User::firstOrCreate(
+                [
+                    'email' => $googleUser->email
+                ],
+                [
+                    'name' => $googleUser->name,
+                    'google_id' => $googleUser->id,
+                    'avatar' => $googleUser->avatar,
+                    'role_id' => RoleEnum::User->value,
+                ]
+            );
 
-        if ($user->wasRecentlyCreated) {
-            $workspace = Workspace::create([
-                'name' => "{$user->name}'s Workspace",
-            ]);
+            if ($user->wasRecentlyCreated) {
+                $workspace = Workspace::create([
+                    'name' => "{$user->name}'s Workspace",
+                ]);
 
-            $workspace->users()->attach($user->id);
-        }
+                $workspace->users()->attach($user->id);
+            }
+        });
 
         Auth::login($user);
         request()->session()->regenerate();

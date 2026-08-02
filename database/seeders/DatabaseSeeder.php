@@ -24,21 +24,25 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // Create 5 users, each with 2 workspaces, each workspace with 10 receipts
-        DB::transaction(function () {
-            $users = User::factory(5)->create();
+        // DB::transaction(function () {
+        //     $users = User::factory(5)->create();
 
-            $workspaces = Workspace::factory(10)->create();
+        //     $workspaces = Workspace::factory(10)->create();
 
-            foreach ($workspaces as $workspace) {
+        //     foreach ($workspaces as $workspace) {
 
-                $workspace->users()->attach(
-                    $users->random(2)->pluck('id')
-                );
+        //         $workspace->users()->attach(
+        //             $users->random(2)->pluck('id')
+        //         );
 
-                Receipt::factory(10)->create([
-                    'workspace_id' => $workspace->id
-                ]);
-            }
-        });
+        //         Receipt::factory(10)->create([
+        //             'workspace_id' => $workspace->id
+        //         ]);
+        //     }
+        // });
+
+        $this->call([
+            RoleSeeder::class,
+        ]);
     }
 }

@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Receipt;
+use App\Models\ReceiptExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+
+class GenerateReceiptExportJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+
+    public function __construct(
+        public ReceiptExport $export
+    ) {
+    }
+
+
+    public function handle()
+    {
+        try {
+            $receipts = Receipt::where(
+                'user_id',
+                $this->export->user_id
+            )->get();
+
+
+            $pdf = Pdf::loadView(
+                'receipts.export',
+                [
+                    'receipts' => $receipts
+                ]
+            );
+
+            $timestamp = now()->format('Y-m-d_H-i-s-u');
+
+            $path = "exports/user_{$this->export->user_id}/receipts_{$timestamp}.pdf";
+
+            Storage::disk('s3')->put(
+                $path,
+                $pdf->output()
+            );
+
+            $this->export->update([
+                'status' => 'completed',
+                'file_path' => $path,
+                'total_receipts' => $receipts->count()
+            ]);
+        } catch (\Throwable $e) {
+            $this->export->update([
+                'status' => 'failed'
+            ]);
+
+            throw $e;
+        }
+    }
+}

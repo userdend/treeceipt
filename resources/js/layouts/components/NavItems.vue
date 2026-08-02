@@ -102,6 +102,25 @@ onBeforeUnmount(() => receiptsStore.stopPolling())
     />
   </VerticalNavGroup>
 
+  <!--
+    <VerticalNavGroup
+    :item="{
+    title: 'Role',
+    badgeContent: '',
+    badgeClass: '',
+    icon: 'ri-admin-fill',
+    }"
+    >
+    <VerticalNavLink
+    :item="{
+    title: 'List',
+    to: '/roles/list',
+    icon: 'ri-list-check',
+    }"
+    />
+    </VerticalNavGroup> 
+  -->
+
   <!-- 👉 User Interface -->
   <!--
     <VerticalNavSectionTitle
@@ -156,6 +175,13 @@ onBeforeUnmount(() => receiptsStore.stopPolling())
   -->
 
   <!-- 👉 Others -->
+  <VerticalNavLink
+    :item="{
+      title: 'Exports',
+      to: '/exports/list',
+      icon: 'ri-inbox-archive-line',
+    }"
+  />
 
   <VerticalNavSectionTitle
     :item="{

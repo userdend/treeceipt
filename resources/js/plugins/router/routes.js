@@ -97,6 +97,23 @@ export const routes = [
         ],
       },
       {
+        path: 'roles',
+        meta: {
+          requiresAuth: true,
+        },
+        children: [
+          {
+            path: 'list',
+            name: 'role-list',
+            component: () => import('@/pages/roles/role-list.vue'),
+          },
+        ],
+      },
+      {
+        path: 'exports/list',
+        component: () => import('@/pages/exports/export-list.vue'),
+      },
+      {
         path: 'typography',
         component: () => import('@/pages/typography.vue'),
       },

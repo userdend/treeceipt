@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Workspace::class, 'workspace_users');
     }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
 }
