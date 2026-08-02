@@ -22,15 +22,23 @@ class GenerateReceiptExportJob implements ShouldQueue
     ) {
     }
 
-
     public function handle()
     {
         try {
-            $receipts = Receipt::where(
-                'user_id',
-                $this->export->user_id
-            )->get();
+            $receipts = Receipt::whereHas('workspace.users', function ($query) {
+                $query->where('users.id', $this->export->user_id);
+            })
+                ->get();
 
+            $receipts->each(function ($receipt) {
+                try {
+                    $mimeType = Storage::disk('s3')->mimeType($receipt->file_path);
+                    $contents = Storage::disk('s3')->get($receipt->file_path);
+                    $receipt->image_src = "data:{$mimeType};base64," . base64_encode($contents);
+                } catch (\Throwable $e) {
+                    $receipt->image_src = null; // handle in blade with a placeholder
+                }
+            });
 
             $pdf = Pdf::loadView(
                 'receipts.export',

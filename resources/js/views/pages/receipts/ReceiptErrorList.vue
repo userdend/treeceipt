@@ -66,7 +66,7 @@ const confirmDelete = async () => {
 
   isDeleting.value = true
   try {
-    const response = await axios.delete(`/api/receipts/data/${receiptToDelete.value.id}/force`)
+    const response = await axios.delete(`/api/receipts/data/${receiptToDelete.value.id}/force/failed`)
 
     receipts.value = receipts.value.filter(r => r.id !== receiptToDelete.value.id)
 

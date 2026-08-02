@@ -48,7 +48,6 @@ class GoogleController extends Controller
         return redirect('/dashboard');
     }
 
-
     public function logout()
     {
         Auth::logout();

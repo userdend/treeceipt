@@ -17,7 +17,7 @@ const message = computed(() => {
       return 'No receipt was detected. Please upload a valid receipt.'
 
     default:
-      return null
+      return 'Invalid image, please upload a valid image.'
   }
 })
 </script>

@@ -267,6 +267,33 @@ class ReceiptController extends Controller
         }
     }
 
+    public function forceDeleteFailed($id)
+    {
+        $receipt = Receipt::whereHas('workspace.users', function ($query) {
+            $query->where('users.id', auth()->id());
+        })
+            ->where('id', $id)
+            ->where('status', ReceiptStatusEnum::Failed)
+            ->firstOrFail();
+
+        DB::beginTransaction();
+        try {
+            $receipt->forceDelete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Successfully delete receipt',
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            report($e);
+            return response()->json([
+                'message' => 'Failed to delete receipt',
+            ], 500);
+        }
+    }
+
     public function restore($id)
     {
         $receipt = Receipt::whereHas('workspace.users', function ($query) {

@@ -17,6 +17,25 @@ const isDeleteDialogOpen = ref(false)
 const receiptToDelete = ref(null)
 const isDeleting = ref(false)
 
+const isExportDialogOpen = ref(false)
+const isExporting = ref(false)
+
+const exportPdf = async () => {
+  isExporting.value = true
+
+  try {
+    await axios.post('/api/exports/pdf', {
+      workspaceId: workspaceStore.currentWorkspaceId,
+    })
+
+    isExportDialogOpen.value = true
+  } catch (err) {
+    error('Something went wrong. Please contact support.')
+  } finally {
+    isExporting.value = false
+  }
+}
+
 const headers = [
   { title: 'Merchant', key: 'merchant' },
   { title: 'Currency', key: 'currency' },
@@ -106,6 +125,8 @@ watch(
     <VBtn
       prepend-icon="ri-file-pdf-2-line"
       color="error"
+      :loading="isExporting"
+      @click="exportPdf"
     >
       Export
     </VBtn>
@@ -189,4 +210,29 @@ watch(
     Are you sure you want to delete receipt <strong>{{ receiptToDelete?.merchant }}</strong
     >?.
   </ConfirmDialog>
+
+  <VDialog
+    v-model="isExportDialogOpen"
+    max-width="400"
+  >
+    <VCard>
+      <VCardTitle> Export Started </VCardTitle>
+
+      <VCardText>
+        Your PDF export has started. You can check the progress in
+        <strong>Menu > Export</strong>.
+      </VCardText>
+
+      <VCardActions>
+        <VSpacer />
+
+        <VBtn
+          color="primary"
+          @click="isExportDialogOpen = false"
+        >
+          OK
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>

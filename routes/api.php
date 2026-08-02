@@ -17,6 +17,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('/data/{id}', [ReceiptController::class, 'delete'])->name('receipt.data.delete');
         Route::patch('/data/{id}/restore', [ReceiptController::class, 'restore'])->name('receipt.data.restore');
         Route::delete('/data/{id}/force', [ReceiptController::class, 'forceDelete'])->name('receipt.data.delete.force');
+        Route::delete('/data/{id}/force/failed', [ReceiptController::class, 'forceDeleteFailed'])->name('receipt.data.delete.force.failed');
         Route::post('/upload', [ReceiptController::class, 'upload'])->name('receipt.upload');
         Route::post('/replace/{id}', [ReceiptController::class, 'replace'])->name('receipt.replace');
         Route::get('/status/{id}', [ReceiptController::class, 'status'])->name('receipt.status');
@@ -44,6 +45,6 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     Route::prefix('exports')->group(function () {
         Route::get('/list', [ExportController::class, 'list'])->name('export.list');
-        Route::get('/pdf', [ExportController::class, 'pdf'])->name('export.pdf');
+        Route::post('/pdf', [ExportController::class, 'pdf'])->name('export.pdf');
     });
 });
