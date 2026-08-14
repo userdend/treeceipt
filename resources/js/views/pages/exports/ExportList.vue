@@ -25,8 +25,33 @@ const options = ref({
   sortBy: [], // e.g. [{ key: 'receipt_date', order: 'desc' }]
 })
 
-const loadExports = async () => {
-  loading.value = true
+const pollTimer = ref(null)
+
+const hasRunningExport = () => {
+  return exports.value.some(exportItem => ['processing'].includes(exportItem.status))
+}
+
+const startPolling = () => {
+  if (pollTimer.value) return
+
+  pollTimer.value = setInterval(() => {
+    loadExports(true)
+  }, 3000)
+}
+
+const stopPolling = () => {
+  if (pollTimer.value) {
+    clearInterval(pollTimer.value)
+    pollTimer.value = null
+  }
+}
+
+const loadExports = async (isPolling = false) => {
+  // Separate initial/table loading from background polling
+  if (!isPolling) {
+    loading.value = true
+  }
+
   try {
     const { page, itemsPerPage, sortBy } = options.value
 
@@ -41,10 +66,19 @@ const loadExports = async () => {
 
     exports.value = response.data.data ?? []
     totalExports.value = response.data.total
+
+    // Start/stop polling based on current export status
+    if (hasRunningExport()) {
+      startPolling()
+    } else {
+      stopPolling()
+    }
   } catch (err) {
     error('Something went wrong. Please contact support.')
   } finally {
-    loading.value = false
+    if (!isPolling) {
+      loading.value = false
+    }
   }
 }
 
@@ -60,13 +94,17 @@ const downloadPdf = async item => {
   try {
     const response = await axios.get(`/api/exports/download/pdf/${item.id}`)
 
-    window.location.href = response.data.url
+    window.open(response.data.url, '_blank', 'noopener,noreferrer')
   } catch (err) {
     error('Something went wrong. Please contact support.')
   } finally {
     isDownloading.value = false
   }
 }
+
+onBeforeUnmount(() => {
+  stopPolling()
+})
 
 watch(options, loadExports, { deep: true })
 </script>
@@ -92,7 +130,7 @@ watch(options, loadExports, { deep: true })
     </template>
 
     <template #item.status="{ item }">
-      {{ item.status ?? '-' }}
+      {{ item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'N/A' }}
     </template>
 
     <template #item.total_receipts="{ item }">

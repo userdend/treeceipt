@@ -51,6 +51,7 @@ class ExportController extends Controller
     {
         $export = ReceiptExport::create([
             'user_id' => auth()->id(),
+            'file_name' => 'N/A',
             'status' => 'processing',
         ]);
 

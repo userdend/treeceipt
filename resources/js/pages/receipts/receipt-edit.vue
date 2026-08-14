@@ -11,6 +11,13 @@ import ReceiptEdit from '@/views/pages/receipts/ReceiptEdit.vue'
       >
         <VCard title="Receipt Edit Form">
           <VCardText>
+            <VAlert
+              type="info"
+              class="mb-4"
+            >
+              The total price will not be calculated automatically. Please ensure that you enter the correct total price
+              for the receipt.
+            </VAlert>
             <ReceiptEdit />
           </VCardText>
         </VCard>

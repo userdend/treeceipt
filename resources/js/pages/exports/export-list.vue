@@ -11,6 +11,12 @@ import ExportList from '@/views/pages/exports/ExportList.vue'
       >
         <VCard title="Export List">
           <VCardText>
+            <VAlert
+              type="info"
+              class="mb-4"
+            >
+              Showing all workspace exports. You can download the exported files once they are ready.
+            </VAlert>
             <ExportList />
           </VCardText>
         </VCard>
