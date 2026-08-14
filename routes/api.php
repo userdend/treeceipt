@@ -46,5 +46,6 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::prefix('exports')->group(function () {
         Route::get('/list', [ExportController::class, 'list'])->name('export.list');
         Route::post('/pdf', [ExportController::class, 'pdf'])->name('export.pdf');
+        Route::get('/download/pdf/{id}', [ExportController::class, 'downloadPdf'])->name('export.pdf.download');
     });
 });

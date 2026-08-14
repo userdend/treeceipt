@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\GenerateReceiptExportJob;
 use App\Models\ReceiptExport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ExportController extends Controller
 {
@@ -15,7 +16,7 @@ class ExportController extends Controller
         $sortOrder = $request->input('sortOrder', 'asc');
 
         $allowedSorts = [
-            'file_path',
+            'file_name',
             'status',
             'total_receipts'
         ];
@@ -58,7 +59,25 @@ class ExportController extends Controller
         ]);
     }
 
-    public function download()
+    public function downloadPdf($id)
     {
+        $userExport = ReceiptExport::find($id);
+
+        abort_unless($userExport->user_id === auth()->id(), 403);
+
+        if ($userExport->status !== 'completed') {
+            return response()->json([
+                'message' => 'Export is not ready yet.',
+            ], 409);
+        }
+
+        $url = Storage::disk('s3')->temporaryUrl(
+            $userExport->file_path,
+            now()->addMinutes(10)
+        );
+
+        return response()->json([
+            'url' => $url,
+        ]);
     }
 }

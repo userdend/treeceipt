@@ -8,11 +8,13 @@ const { success, error } = useSnackbar()
 const exports = ref([])
 const totalExports = ref(0)
 const loading = ref(false)
+const isDownloading = ref(false)
 
 const headers = [
-  { title: 'File', key: 'file_path' },
+  { title: 'File', key: 'file_name' },
   { title: 'Status', key: 'status' },
   { title: 'Total Receipts', key: 'total_receipts' },
+  { title: 'Actions', key: 'actions', sortable: false, align: 'center' },
 ]
 
 const options = ref({
@@ -48,6 +50,22 @@ const onUpdateOptions = newOptions => {
   options.value = newOptions
 }
 
+const downloadPdf = async item => {
+  if (isDownloading.value) return
+
+  isDownloading.value = true
+
+  try {
+    const response = await axios.get(`/api/exports/download/pdf/${item.id}`)
+
+    window.location.href = response.data.url
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isDownloading.value = false
+  }
+}
+
 watch(options, loadExports, { deep: true })
 </script>
 
@@ -67,8 +85,8 @@ watch(options, loadExports, { deep: true })
     item-value="id"
     @update:options="onUpdateOptions"
   >
-    <template #item.file_path="{ item }">
-      {{ item.file_path ?? '-' }}
+    <template #item.file_name="{ item }">
+      {{ item.file_name ?? '-' }}
     </template>
 
     <template #item.status="{ item }">
@@ -77,6 +95,19 @@ watch(options, loadExports, { deep: true })
 
     <template #item.total_receipts="{ item }">
       {{ item.total_receipts ?? '-' }}
+    </template>
+
+    <template #item.actions="{ item }">
+      <div class="d-flex justify-center flex-nowrap">
+        <VBtn
+          :loading="isDownloading"
+          :disabled="isDownloading"
+          color="secondary"
+          variant="outlined"
+          icon="ri-file-download-line"
+          @click="downloadPdf(item)"
+        />
+      </div>
     </template>
 
     <template #no-data>
