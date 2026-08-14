@@ -22,7 +22,7 @@ class ExportController extends Controller
 
         $query = ReceiptExport::select([
             'id',
-            'file_path',
+            'file_name',
             'status',
             'total_receipts'
         ]);
@@ -56,5 +56,9 @@ class ExportController extends Controller
             'message' => 'Export started',
             'export_id' => $export->id
         ]);
+    }
+
+    public function download()
+    {
     }
 }

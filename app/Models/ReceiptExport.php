@@ -11,6 +11,7 @@ class ReceiptExport extends Model
 
     protected $fillable = [
         'user_id',
+        'file_name',
         'file_path',
         'status',
         'total_receipts'

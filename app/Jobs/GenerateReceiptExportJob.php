@@ -49,7 +49,8 @@ class GenerateReceiptExportJob implements ShouldQueue
 
             $timestamp = now()->format('Y-m-d_H-i-s-u');
 
-            $path = "exports/user_{$this->export->user_id}/receipts_{$timestamp}.pdf";
+            $name = "receipts_{$timestamp}.pdf";
+            $path = "exports/user_{$this->export->user_id}/{$name}";
 
             Storage::disk('s3')->put(
                 $path,
@@ -57,8 +58,9 @@ class GenerateReceiptExportJob implements ShouldQueue
             );
 
             $this->export->update([
-                'status' => 'completed',
+                'file_name' => $name,
                 'file_path' => $path,
+                'status' => 'completed',
                 'total_receipts' => $receipts->count()
             ]);
         } catch (\Throwable $e) {
