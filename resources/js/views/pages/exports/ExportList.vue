@@ -1,5 +1,6 @@
 <script setup>
 import { useSnackbar } from '@/composables/useSnackbar'
+import { formatDate } from '@/utils/formatDate'
 import axios from 'axios'
 import { ref, watch } from 'vue'
 
@@ -14,6 +15,7 @@ const headers = [
   { title: 'File', key: 'file_name' },
   { title: 'Status', key: 'status' },
   { title: 'Total Receipts', key: 'total_receipts' },
+  { title: 'Date', key: 'updated_at' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'center' },
 ]
 
@@ -59,8 +61,8 @@ const downloadPdf = async item => {
     const response = await axios.get(`/api/exports/download/pdf/${item.id}`)
 
     window.location.href = response.data.url
-  } catch (error) {
-    console.error(error)
+  } catch (err) {
+    error('Something went wrong. Please contact support.')
   } finally {
     isDownloading.value = false
   }
@@ -95,6 +97,10 @@ watch(options, loadExports, { deep: true })
 
     <template #item.total_receipts="{ item }">
       {{ item.total_receipts ?? '-' }}
+    </template>
+
+    <template #item.updated_at="{ item }">
+      {{ formatDate(item.updated_at) }}
     </template>
 
     <template #item.actions="{ item }">

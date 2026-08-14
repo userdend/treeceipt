@@ -18,22 +18,25 @@ class ExportController extends Controller
         $allowedSorts = [
             'file_name',
             'status',
-            'total_receipts'
+            'total_receipts',
+            'updated_at'
         ];
 
         $query = ReceiptExport::select([
             'id',
+            'user_id',
             'file_name',
             'status',
-            'total_receipts'
-        ]);
+            'total_receipts',
+            'updated_at'
+        ])->where('user_id', auth()->id());
 
         if ($sortBy && in_array($sortBy, $allowedSorts, true)) {
             $query->orderBy($sortBy, $sortOrder === 'desc' ? 'desc' : 'asc');
         } else {
             $query
                 ->orderBy('id', 'desc')
-                ->orderBy('created_at', 'desc');
+                ->orderBy('updated_at', 'desc');
         }
 
         $roles = $query->paginate($perPage);
